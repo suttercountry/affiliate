@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AffiliateGen Pro - Konten Viral 10 Detik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .canvas-container { 
+            aspect-ratio: 9/16; 
+            max-height: 75vh; 
+            margin: auto; 
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 1.5rem; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            background: #111;
+        }
+        canvas { width: 100%; height: 100%; object-fit: contain; }
+        .tab-active { border-bottom: 3px solid #f97316; color: #f97316; }
+        .gradient-shopee { background: linear-gradient(135deg, #ee4d2d 0%, #ff7337 100%); }
+        .loading-bar { transition: width 0.1s linear; }
+        input[type="range"] { accent-color: #f97316; }
+        
+        /* Shimmer effect for AI loading */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 pb-20">
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 gradient-shopee rounded-xl flex items-center justify-center text-white font-bold">A</div>
+                <h1 class="text-xl font-extrabold tracking-tight">AffiliateGen <span class="text-orange-500">Pro</span></h1>
+            </div>
+            <div class="hidden md:flex gap-4 text-sm font-medium text-slate-500">
+                <span id="aiStatus" class="flex items-center gap-1">
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span> AI Engine Ready
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Preview Section -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            <div class="canvas-container border-[6px] border-white relative">
+                <canvas id="mainCanvas" width="1080" height="1920"></canvas>
+                
+                <div id="safeZone" class="absolute inset-0 pointer-events-none opacity-30 border-x-[40px] border-transparent hidden">
+                    <div class="absolute bottom-0 left-0 w-full h-[30%] bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-6">
+                        <div class="w-12 h-12 rounded-full bg-white/20"></div>
+                        <div class="w-12 h-12 rounded-full bg-white/20"></div>
+                        <div class="w-12 h-12 rounded-full bg-white/20"></div>
+                    </div>
+                </div>
+
+                <div id="recordingOverlay" class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center hidden z-40 backdrop-blur-sm">
+                    <div class="text-orange-500 font-black text-4xl mb-2" id="timerLabel">00:00</div>
+                    <p class="text-white font-medium mb-6">Mengekspor Video HD...</p>
+                    <div class="w-2/3 bg-white/10 h-3 rounded-full overflow-hidden border border-white/20">
+                        <div id="progressBar" class="loading-bar h-full bg-orange-500 w-0"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center px-2">
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">9:16 Vertical HD</p>
+                <button onclick="toggleSafeZone()" class="text-xs font-bold text-orange-600 hover:bg-orange-50 px-3 py-1 rounded-full transition-colors">Toggle Safe Zone</button>
+            </div>
+        </section>
+
+        <!-- Control Section -->
+        <section class="lg:col-span-7 space-y-6">
+            
+            <div class="flex border-b border-slate-200 gap-6 mb-4 overflow-x-auto">
+                <button onclick="switchTab('media')" id="tab-media" class="tab-active pb-3 text-sm font-bold whitespace-nowrap transition-all">1. MEDIA</button>
+                <button onclick="switchTab('detail')" id="tab-detail" class="pb-3 text-sm font-bold text-slate-400 whitespace-nowrap transition-all">2. DETAIL PRODUK</button>
+                <button onclick="switchTab('style')" id="tab-style" class="pb-3 text-sm font-bold text-slate-400 whitespace-nowrap transition-all">3. STYLE & STIKER</button>
+            </div>
+
+            <!-- Content: Media -->
+            <div id="content-media" class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-4">Langkah 1: Masukkan Konten</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button id="btnCamera" class="flex flex-col items-center gap-3 p-6 bg-slate-50 hover:bg-orange-50 border-2 border-dashed border-slate-200 hover:border-orange-200 rounded-2xl transition-all group">
+                            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-orange-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-width="2"></path></svg>
+                            </div>
+                            <span class="font-bold text-sm">Ambil Video</span>
+                        </button>
+                        <button id="btnUpload" class="flex flex-col items-center gap-3 p-6 bg-slate-50 hover:bg-blue-50 border-2 border-dashed border-slate-200 hover:border-blue-200 rounded-2xl transition-all group">
+                            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2"></path></svg>
+                            </div>
+                            <span class="font-bold text-sm">Upload File</span>
+                        </button>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*,video/*" class="hidden">
+                    
+                    <div class="mt-6 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="text-xs font-bold text-orange-800 uppercase">Efek Visual</label>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <span class="text-[10px] font-bold text-slate-400 w-16">BRIGHT</span>
+                                <input type="range" id="filterBrightness" min="50" max="150" value="100" class="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none">
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="text-[10px] font-bold text-slate-400 w-16">SATURATE</span>
+                                <input type="range" id="filterSaturation" min="50" max="150" value="115" class="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content: Detail -->
+            <div id="content-detail" class="hidden space-y-4">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-bold text-slate-700">Informasi Produk</label>
+                        <button id="btnAiSuggest" class="text-xs font-black text-white bg-indigo-600 px-3 py-1.5 rounded-lg flex items-center gap-1 hover:bg-indigo-700 active:scale-95 transition-all">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"></path></svg>
+                            AI GENERATE
+                        </button>
+                    </div>
+                    
+                    <input type="text" id="inpTitle" placeholder="Nama Produk..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none font-bold">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="inpOldPrice" placeholder="Harga Coret (Rp...)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none text-slate-400 line-through">
+                        <input type="text" id="inpPrice" placeholder="Harga Promo" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-orange-600">
+                    </div>
+                    
+                    <select id="inpCTA" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none font-bold text-slate-700">
+                        <option value="KLIK KERANJANG KUNING!">🛒 Cek Keranjang Kuning!</option>
+                        <option value="KLIK LINK DI BIO PROFIL!">🔗 Klik Link di Bio!</option>
+                        <option value="AMBIL PROMONYA SEKARANG!">🔥 Ambil Promonya!</option>
+                        <option value="STOK TERBATAS, BELI SEKARANG!">⏳ Stok Terbatas!</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Content: Style -->
+            <div id="content-style" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-3">Visual Theme</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="setTheme('shopee')" class="p-4 rounded-xl border-2 border-orange-500 bg-orange-50 text-orange-600 font-bold text-xs flex flex-col items-center gap-2">
+                                <div class="w-6 h-6 bg-orange-500 rounded-full"></div>
+                                SHOPEE
+                            </button>
+                            <button onclick="setTheme('tiktok')" class="p-4 rounded-xl border-2 border-slate-200 bg-slate-900 text-white font-bold text-xs flex flex-col items-center gap-2">
+                                <div class="w-6 h-6 bg-white rounded-full"></div>
+                                DARK
+                            </button>
+                            <button onclick="setTheme('minimal')" class="p-4 rounded-xl border-2 border-slate-200 bg-white text-slate-800 font-bold text-xs flex flex-col items-center gap-2">
+                                <div class="w-6 h-6 border border-slate-300 rounded-full"></div>
+                                MINIMAL
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-3">Floating Badges</label>
+                        <div class="flex flex-wrap gap-3">
+                            <label class="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full cursor-pointer hover:bg-orange-100">
+                                <input type="checkbox" id="stickerCOD" class="w-4 h-4 rounded">
+                                <span class="text-xs font-bold">BISA COD</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full cursor-pointer hover:bg-orange-100">
+                                <input type="checkbox" id="stickerFree" class="w-4 h-4 rounded" checked>
+                                <span class="text-xs font-bold">FREE ONGKIR</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full cursor-pointer hover:bg-orange-100">
+                                <input type="checkbox" id="stickerFlash" class="w-4 h-4 rounded">
+                                <span class="text-xs font-bold">FLASH SALE</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="flex flex-col gap-3">
+                <button id="btnGenerate" class="w-full py-5 gradient-shopee text-white font-black rounded-2xl shadow-xl hover:scale-[1.01] active:scale-95 transition-all text-xl flex items-center justify-center gap-3">
+                    <span id="genText">EXPORT VIDEO (10S)</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                
+                <div id="downloadArea" class="hidden">
+                    <a id="downloadLink" href="#" class="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl text-center flex items-center justify-center gap-2 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2"></path></svg>
+                        SIMPAN KE GALERI
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <video id="vSrc" class="hidden" autoplay muted playsinline loop crossorigin="anonymous"></video>
+    <img id="iSrc" class="hidden" src="" crossorigin="anonymous">
+
+    <script>
+        const apiKey = ""; // Disediakan oleh sistem
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        const vSrc = document.getElementById('vSrc');
+        const iSrc = document.getElementById('iSrc');
+        const fileInput = document.getElementById('fileInput');
+        
+        let mediaType = 'none';
+        let currentTheme = 'shopee';
+        let isRecording = false;
+        let pulseVal = 0;
+        let pulseDir = 0.04;
+        let rotationAngle = 0;
+
+        // UI Logic
+        function switchTab(id) {
+            ['media', 'detail', 'style'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('tab-active', 'text-slate-900');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`content-${id}`).classList.remove('hidden');
+            document.getElementById(`tab-${id}`).classList.add('tab-active', 'text-slate-900');
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+        }
+
+        function toggleSafeZone() {
+            document.getElementById('safeZone').classList.toggle('hidden');
+        }
+
+        // AI Feature: Suggest Product Details
+        document.getElementById('btnAiSuggest').onclick = async () => {
+            const btn = document.getElementById('btnAiSuggest');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = "PROCESING...";
+            
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Berikan detail produk viral untuk affiliate TikTok. Nama Produk (singkat padat), Harga Coret (Rp 200rb-500rb), Harga Promo (diskon 70%), dan pilih satu CTA terlucu. Respon dalam format JSON: {title, oldPrice, price, cta}" }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+                
+                const data = await response.json();
+                const res = JSON.parse(data.candidates[0].content.parts[0].text);
+                
+                document.getElementById('inpTitle').value = res.title;
+                document.getElementById('inpOldPrice').value = res.oldPrice;
+                document.getElementById('inpPrice').value = res.price;
+                document.getElementById('inpCTA').value = res.cta;
+            } catch (err) {
+                console.error("AI Error:", err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        };
+
+        // Media Handlers
+        document.getElementById('btnCamera').onclick = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: 1080, height: 1920 } 
+                });
+                vSrc.srcObject = stream;
+                vSrc.onloadedmetadata = () => {
+                    vSrc.play();
+                    mediaType = 'video';
+                };
+            } catch (err) {
+                console.error("Kamera error:", err);
+            }
+        };
+
+        document.getElementById('btnUpload').onclick = () => fileInput.click();
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            
+            if (file.type.startsWith('image/')) {
+                mediaType = 'image';
+                iSrc.onload = () => { /* Ready */ };
+                iSrc.src = url;
+            } else {
+                mediaType = 'video';
+                vSrc.srcObject = null;
+                vSrc.src = url;
+                vSrc.oncanplay = () => vSrc.play();
+            }
+        };
+
+        // Render Loop
+        function draw() {
+            // Background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Filters
+            const b = document.getElementById('filterBrightness').value;
+            const s = document.getElementById('filterSaturation').value;
+            ctx.filter = `brightness(${b}%) saturate(${s}%)`;
+
+            // Draw Media
+            let source = (mediaType === 'image') ? iSrc : vSrc;
+            if (mediaType !== 'none' && (source.complete || source.readyState >= 2)) {
+                const sW = (mediaType === 'image') ? source.width : source.videoWidth;
+                const sH = (mediaType === 'image') ? source.height : source.videoHeight;
+                
+                const sRatio = sW / sH;
+                const cRatio = canvas.width / canvas.height;
+                
+                let dw, dh, dx, dy;
+                if (sRatio > cRatio) {
+                    dh = canvas.height;
+                    dw = canvas.height * sRatio;
+                    dx = (canvas.width - dw) / 2;
+                    dy = 0;
+                } else {
+                    dw = canvas.width;
+                    dh = canvas.width / sRatio;
+                    dx = 0;
+                    dy = (canvas.height - dh) / 2;
+                }
+                ctx.drawImage(source, dx, dy, dw, dh);
+            }
+            
+            ctx.filter = 'none';
+
+            // Pulse Logic
+            pulseVal += pulseDir;
+            if (pulseVal > 1 || pulseVal < 0) pulseDir *= -1;
+            rotationAngle += 0.005;
+
+            const theme = {
+                shopee: { bg: '#ee4d2d', text: '#fff', accent: '#ffcc00' },
+                tiktok: { bg: '#000', text: '#fff', accent: '#fe2c55' },
+                minimal: { bg: '#fff', text: '#000', accent: '#222' }
+            }[currentTheme];
+
+            // Overlay Gradient
+            const grad = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.85)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
+
+            // Product Text
+            const title = document.getElementById('inpTitle').value || "DISKON BESAR HARI INI";
+            ctx.textAlign = "left";
+            ctx.fillStyle = "#fff";
+            ctx.font = "bold 58px 'Plus Jakarta Sans'";
+            ctx.fillText(title.toUpperCase(), 70, canvas.height - 420);
+
+            // Price Tags
+            const p = document.getElementById('inpPrice').value || "Rp ???";
+            const op = document.getElementById('inpOldPrice').value;
+            
+            if(op) {
+                ctx.font = "42px 'Plus Jakarta Sans'";
+                ctx.fillStyle = "rgba(255,255,255,0.6)";
+                ctx.fillText(op, 70, canvas.height - 350);
+                const tw = ctx.measureText(op).width;
+                ctx.fillRect(70, canvas.height - 365, tw, 4);
+            }
+
+            ctx.font = "bold 100px 'Plus Jakarta Sans'";
+            ctx.fillStyle = theme.accent;
+            ctx.fillText(p, 70, canvas.height - 250);
+
+            // CTA Pulse Button
+            const cta = document.getElementById('inpCTA').value;
+            ctx.save();
+            ctx.translate(canvas.width/2, canvas.height - 110);
+            ctx.scale(1 + pulseVal * 0.04, 1 + pulseVal * 0.04);
+            
+            ctx.fillStyle = theme.bg;
+            if(currentTheme === 'minimal') {
+                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 5;
+            }
+            
+            ctx.beginPath();
+            ctx.roundRect(-480, -65, 960, 130, 65);
+            ctx.fill();
+            if(currentTheme === 'minimal') ctx.stroke();
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = theme.text;
+            ctx.font = "bold 52px 'Plus Jakarta Sans'";
+            ctx.fillText(cta, 0, 18);
+            ctx.restore();
+
+            // Dynamic Badges
+            let bY = 160;
+            if(document.getElementById('stickerFree').checked) { drawBadge(160, bY, "GRATIS ONGKIR", "#00d084"); bY += 120; }
+            if(document.getElementById('stickerCOD').checked) { drawBadge(160, bY, "BISA COD", "#ff6900"); bY += 120; }
+            if(document.getElementById('stickerFlash').checked) { drawBadge(160, bY, "FLASH SALE", "#eb144c"); }
+
+            if (!isRecording) requestAnimationFrame(draw);
+        }
+
+        function drawBadge(x, y, txt, col) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(-0.1 + (Math.sin(rotationAngle) * 0.05));
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.roundRect(-130, -45, 300, 90, 12);
+            ctx.fill();
+            ctx.fillStyle = "#fff";
+            ctx.font = "bold 38px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(txt, 20, 14);
+            ctx.restore();
+        }
+
+        // Export Logic
+        async function startExport() {
+            if (mediaType === 'none') return alert("Pilih Foto/Video dulu!");
+
+            isRecording = true;
+            const chunks = [];
+            const stream = canvas.captureStream(30);
+            const recorder = new MediaRecorder(stream, { 
+                mimeType: 'video/webm;codecs=vp9',
+                videoBitsPerSecond: 5000000 
+            });
+
+            const overlay = document.getElementById('recordingOverlay');
+            const progress = document.getElementById('progressBar');
+            
+            overlay.classList.remove('hidden');
+            
+            recorder.ondataavailable = e => chunks.push(e.data);
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const dl = document.getElementById('downloadLink');
+                dl.href = url;
+                dl.download = `AffiliatePro_${Date.now()}.webm`;
+                document.getElementById('downloadArea').classList.remove('hidden');
+                overlay.classList.add('hidden');
+                isRecording = false;
+                draw();
+            };
+
+            recorder.start();
+            
+            const duration = 10000;
+            const start = Date.now();
+
+            const track = () => {
+                const elapsed = Date.now() - start;
+                const perc = (elapsed / duration) * 100;
+                progress.style.width = `${perc}%`;
+                document.getElementById('timerLabel').innerText = `00:0${Math.floor(elapsed/1000)}`;
+                draw();
+                if (elapsed < duration) requestAnimationFrame(track);
+                else recorder.stop();
+            };
+            track();
+        }
+
+        document.getElementById('btnGenerate').onclick = startExport;
+        
+        window.onload = () => {
+            draw();
+        };
+    </script>
+</body>
+</html>
